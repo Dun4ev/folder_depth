@@ -122,7 +122,7 @@ def flatten_tree(node: Dict[str, Any], root_abs: str) -> List[Dict[str, Any]]:
     return res
 
 
-def generate_html_report(root: str, tree: Dict[str, Any], results: List[Tuple[int, int, str, int]]) -> str:
+def generate_html_report(root: str, tree: Dict[str, Any], results: List[Tuple[int, int, str, int]], max_depth: int) -> str:
     """Генерирует стильный самодостаточный HTML-отчет."""
     json_tree = json.dumps(tree, ensure_ascii=False)
     json_results = json.dumps([
@@ -296,17 +296,17 @@ def generate_html_report(root: str, tree: Dict[str, Any], results: List[Tuple[in
         </div>
         
         <div class="tabs">
-            <button class="tab-btn active" onclick="openTab('tab-deepest')">🔥 Самые глубокие пути</button>
-            <button class="tab-btn" onclick="openTab('tab-tree')">📂 Дерево каталогов</button>
+            <button class="tab-btn" onclick="openTab('tab-deepest')">🔥 Самые глубокие пути</button>
+            <button class="tab-btn active" onclick="openTab('tab-tree')">📂 Дерево каталогов (глубина: {max_depth})</button>
         </div>
 
-        <div id="tab-deepest" class="tab-content active">
-            <h2>Самые глубокие пути</h2>
+        <div id="tab-deepest" class="tab-content">
+            <h2>Самые глубокие пути (топ {len(results)})</h2>
             <div id="top-paths"></div>
         </div>
 
-        <div id="tab-tree" class="tab-content">
-            <h2>Дерево каталогов</h2>
+        <div id="tab-tree" class="tab-content active">
+            <h2>Дерево каталогов (до {max_depth} уровней)</h2>
             <input type="text" class="search-box" id="search" placeholder="Поиск папки в дереве...">
             <div class="controls">
                 <button class="btn" onclick="expandAll()">Развернуть всё</button>
@@ -583,7 +583,7 @@ def main() -> None:
                     indent=2,
                 )
         else:  # html
-            html_content = generate_html_report(root, tree, results)
+            html_content = generate_html_report(root, tree, results, args.tree_depth)
             with open(out_path, "w", encoding="utf-8") as f:
                 f.write(html_content)
         print(f"Saved to: {out_path}")
